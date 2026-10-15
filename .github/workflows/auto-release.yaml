@@ -1,0 +1,11 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  criar-release:
+    uses: Fixa-Inter/.github/.github/workflows/auto-release.yml@main
+    secrets: inherit
