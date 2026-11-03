@@ -2,9 +2,9 @@ from pyspark import pipelines as dp
 from pyspark.sql import functions as F
 
 # Conexão com PostgreSQL
-PG_HOST = "pg-3117a07b-fixa-9a44.e.aivencloud.com"
-PG_PORT = "15976"
-PG_DATABASE = "db2anoPrincipal"
+PG_HOST = "ep-small-wildflower-b642ym5h-pooler.c-2.sa-east-1.aws.neon.tech"
+PG_PORT = "5432"
+PG_DATABASE = "dbPrincipal"
 PG_SCHEMA = "public"
 
 PG_USER = dbutils.secrets.get(
@@ -17,28 +17,27 @@ PG_PASSWORD = dbutils.secrets.get(
     key="postgres-password"
 ).strip()
 
-JDBC_URL = (
-    f"jdbc:postgresql://{PG_HOST}:{PG_PORT}/{PG_DATABASE}"
-    "?sslmode=require"
-)
+# JDBC_URL = (
+#     f"jdbc:postgresql://{PG_HOST}:{PG_PORT}/{PG_DATABASE}"
+#     "?sslmode=require"
+# )
 
 
 def ler_postgres(nome_objeto):
-    """
-    Lê uma tabela ou view do PostgreSQL via JDBC.
-    """
     return (
         spark.read
-        .format("jdbc")
-        .option("url", JDBC_URL)
+        .format("postgresql")
+        .option("host", PG_HOST)
+        .option("port", PG_PORT)
+        .option("database", PG_DATABASE)
         .option(
             "dbtable",
             f"{PG_SCHEMA}.{nome_objeto}"
         )
         .option("user", PG_USER)
         .option("password", PG_PASSWORD)
-        .option("driver", "org.postgresql.Driver")
-        .option("fetchsize", "10000")
+        .option("sslmode", "require")
+        .option("connectTimeout", "30")
         .load()
     )
 
